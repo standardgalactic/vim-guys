@@ -3,7 +3,7 @@
 export default $config({
     app(input) {
         return {
-            name: "auth-proxy",
+            name: "vim-guys",
             removal: input?.stage === "production" ? "retain" : "remove",
             protect: ["production"].includes(input?.stage),
             home: "aws",
@@ -37,7 +37,7 @@ export default $config({
         const vg = new sst.aws.Service("VimGuys", {
             // TODO set these to make it so i can run ~1000 games
             image: {
-                context: "./auth-proxy/"
+                context: "./vim-guys/"
             },
             wait: true,
             cluster,

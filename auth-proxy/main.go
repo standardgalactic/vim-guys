@@ -8,7 +8,7 @@ import (
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		res, err := http.Get("http://vimguys.dev.auth-proxy.sst:8080")
+		res, err := http.Get("http://vimguys.dev.vim-guys.sst:8080")
 		if err != nil {
 			slog.Error("unable to get vimguys", "error", err)
 			w.Write([]byte("SADGE DAYS"))

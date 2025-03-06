@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+get_vmrss() {
+    if [[ -z "$1" || ! -d "/proc/$1" ]]; then
+        echo "Usage: get_vmrss <pid>"
+        return 1
+    fi
+
+    local vmrss=$(grep -i 'VmRSS' /proc/$1/status 2>/dev/null | awk '{print $2, $3}')
+    if [[ -n "$vmrss" ]]; then
+        echo "VmRSS for PID $1: $vmrss"
+    else
+        echo "VmRSS information not available for PID $1"
+    fi
+}
+
