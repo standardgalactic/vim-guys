@@ -17,22 +17,36 @@ High level look at the protocol is the following:
 [ version(1) | type(2) | len(2) | data(len) ]
 
 ### Authentication
-```
-Auth : <uuid>
-AuthResponse : <bool> authenticated
+```go
+type Auth struct {
+    Data: UUID
+}
+
+type AuthResponse struct {
+    Data: bool
+}
 ```
 
 ### Connection Status / Maintenance
-```
-# types
-Ping : <no data>
-Pong : <no data>
-ConnError : <str#len> connection error string
-GameError : <str#len> game error string
+```go
+type Ping struct {
+    Data: nil
+}
+
+type Pong struct {
+    Data: nil
+}
+
+type ConnError struct {
+    Data: string
+}
+
+type GameError struct {
+    Data: string
+}
 ```
 
 ### Rendering / Game
-```
-# types
-...
+```go
+// ... working on what this is going to be
 ```
