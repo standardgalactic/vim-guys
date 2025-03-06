@@ -17,36 +17,107 @@ High level look at the protocol is the following:
 [ version(1) | type(2) | len(2) | data(len) ]
 
 ### Authentication
-```go
-type Auth struct {
-    Data: UUID
+```typescript
+type Auth = {
+    data: UUID
 }
 
-type AuthResponse struct {
-    Data: bool
+type AuthResponse = {
+    data: boolean
 }
 ```
 
 ### Connection Status / Maintenance
-```go
-type Ping struct {
-    Data: nil
+```typescript
+type Ping = {
+    data: null
 }
 
-type Pong struct {
-    Data: nil
+type Pong = {
+    data: null
 }
 
-type ConnError struct {
-    Data: string
+type ConnectionTimings = {
+    data: {
+        sent: number,
+        received?: number
+    }
 }
 
-type GameError struct {
-    Data: string
+type ConnError = {
+    data: string
 }
+
+type MessageDisplay = {
+    msg: string,
+    foreground: Hex
+    background?: Hex
+    bold?: boolean // i think vim supports this
+}
+
+type GameStatusMessage =
+// displays a large central box
+{
+    type: 1,
+    title: MessageDisplay,
+    display: MessageDisplay,
+    time: number
+}
+
+// displays a game message in bottom row
+| {
+    type: 2,
+    display: MessageDisplay,
+    time: number
+}
+
+type GameStatus = {
+    data: GameStatusMessage
+}
+
+type SystemMessage = {
+    data: string
+}
+
 ```
 
 ### Rendering / Game
-```go
-// ... working on what this is going to be
+**Needs**
+Some assets, players, will move in non predictable patterns
+Some assets, items, could visible until someone picks one up
+Some assets, walls, never move
+Some assets, moving walls, could move with a cycle
+
+```typescript
+type RenderedObject =
+// this should cover 1 - 3
+{
+    type: 1,
+    id: number,
+    pos: Vec2
+    rect: [Vec2, Vec2] // n x m
+    color:
+        number | // all one color
+        number[] // length = n x m
+}
+
+// this should cover number 2
+| {
+    type: 2,
+    startingPos: [Vec2, Vec2] // n x m
+    endingPos: [Vec2, Vec2] // n x m
+    timings: {
+        cycleTime: number,
+        offsetTime: number,
+        cycleDelay: number,
+    }
+    rect: [Vec2, Vec2] // n x m
+    color:
+        number | // all one color
+        number[] // length = n x m
+}
+
+type Rendered = {
+    data: RenderedObject
+}
 ```
