@@ -3,6 +3,12 @@ We are not going to create a game spawning service yet.  Unless we get some how
 so popular that i cannot run ~10,000s of users on a single cpu, then... well,
 then i'll have to scale horizontally
 
+## Why JSON?
+I just didn't want to write parser 3 times.  so i am just using zig as the data
+packet but the header is binary.  This will allow for fast intervention for
+auth-proxy but simplicity.  Especially since i have no idea if i have the right
+packets!
+
 ## topology
 client([ ws conn ]) -> vimguys.theprimeagen.com
 * this is for authentication
@@ -14,11 +20,20 @@ vimguys([ tcp conn]) -> internal.vimguys.game
 
 ## Network Protocol
 High level look at the protocol is the following:
-[ version(1) | type(2) | len(2) | player_id(4) | data(len) ]
+[ version(2) | type(2) | len(2) | player_id(4) | game_id(4) | data(len) ]
 
-### Notes
-the `player_id` will be filled in from the auth.  if any value is within that
-spot, it will be overwritten.
+### version
+This represents two different types of versioning.
+
+* binary protocal version.  This should rarely, if ever change.
+* new `types`  This will be incremented and will be considered breaking every time.
+
+**Update required** if out of sync
+Should never change mid game
+
+### player_id & game_id
+this will be used by the game and the proxy.  They have no affect on the
+clientside
 
 ### Authentication
 ```typescript
@@ -59,13 +74,16 @@ type MessageDisplay = {
     bold?: boolean // i think vim supports this
 }
 
-type GameStatusMessage =
-// displays a large central box
-{
-    type: 1,
+type BillboardMessage = {
     title: MessageDisplay,
     display: MessageDisplay,
     time: number
+}
+
+type GameStatusMessage =
+// displays a large central box
+BillboardMessage & {
+    type: 1,
 }
 
 // displays a game message in bottom row
@@ -121,6 +139,13 @@ type RenderedObject =
         number[] // length = n x m
 }
 
+// navigation markers
+| {
+    type: 3
+    pos: Vec2
+    keys: string
+}
+
 type Rendered = {
     data: RenderedObject
 }
@@ -147,10 +172,34 @@ type PlayerId = {
 type GameCountdown = {
     data: number
 }
+
 type GameOver = {
     data: {
         win: boolean // i am sure i will want more information here
-        stats: { ... } // i'll have to think about
+        display: BillboardMessage
+        stats: Stats
     }
 }
+
+type MiniGameEnd = {
+    win: boolean
+    display: BillboardMessage
+}
+
+type MiniGameInit = {
+    display: BillboardMessage
+    map: {
+        width: number,
+        height: number,
+        renders: RenderedObject[]
+    }
+}
+
+type GameMessage = {
+    data: MiniGameInit | MiniGameEnd
+}
+
+type Stats = { ... unknown at the time of writing ... }
 ```
+
+## Decoding strategy
