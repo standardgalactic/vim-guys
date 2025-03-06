@@ -24,6 +24,7 @@ AuthResponse = 2
 ```
 
 | Type             |      Packet                   |
+|------|------|
 | Auth             | [V, Auth, 16, <uuid>]            |
 | AuthResponse     | [V, AuthResponse, 16, 0 | 1]             |
 
