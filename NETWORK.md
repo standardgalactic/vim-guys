@@ -14,7 +14,11 @@ vimguys([ tcp conn]) -> internal.vimguys.game
 
 ## Network Protocol
 High level look at the protocol is the following:
-[ version(1) | type(2) | len(2) | data(len) ]
+[ version(1) | type(2) | len(2) | player_id(4) | data(len) ]
+
+### Notes
+the `player_id` will be filled in from the auth.  if any value is within that
+spot, it will be overwritten.
 
 ### Authentication
 ```typescript
@@ -81,7 +85,7 @@ type SystemMessage = {
 
 ```
 
-### Rendering / Game
+### Rendering
 **Needs**
 Some assets, players, will move in non predictable patterns
 Some assets, items, could visible until someone picks one up
@@ -119,5 +123,34 @@ type RenderedObject =
 
 type Rendered = {
     data: RenderedObject
+}
+```
+
+### Input
+**Context**
+Now with vim we do not get to know if two keys are held down at once.  But we
+have vim navigation which has been designed around the fact you cannot do that.
+We can also not know if two keys are held down at the same time.  So this does
+limit us in the natural gaming sense.
+
+```typescript
+type Input = {
+    data: { key: string }
+}
+```
+
+### Game Information
+```typescript
+type PlayerId = {
+    data: number
+}
+type GameCountdown = {
+    data: number
+}
+type GameOver = {
+    data: {
+        win: boolean // i am sure i will want more information here
+        stats: { ... } // i'll have to think about
+    }
 }
 ```
