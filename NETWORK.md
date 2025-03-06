@@ -18,14 +18,21 @@ High level look at the protocol is the following:
 
 ### Authentication
 ```
-# types
-Auth         = 1
-AuthResponse = 2
+Auth : <uuid>
+AuthResponse : <bool> authenticated
 ```
 
-| Type             |      Packet                   |
-|------|------|
-| Auth             | [V, Auth, 16, <uuid>]            |
-| AuthResponse     | [V, AuthResponse, 16, 0 | 1]             |
+### Connection Status / Maintenance
+```
+# types
+Ping : <no data>
+Pong : <no data>
+ConnError : <str#len> connection error string
+GameError : <str#len> game error string
+```
 
-### Authentication
+### Rendering / Game
+```
+# types
+...
+```
