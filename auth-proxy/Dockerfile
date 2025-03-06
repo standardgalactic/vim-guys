@@ -6,7 +6,7 @@ COPY . .
 
 # Build the Go app
 RUN go mod download
-RUN go build -o main
+RUN go build ./cmd/main.go -o main
 
 # Create a minimal image for deployment
 FROM alpine:latest
