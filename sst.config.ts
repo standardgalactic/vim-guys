@@ -45,7 +45,7 @@ export default $config({
                     { listen: "80/http", forward: "8080/http" },
                     { listen: "443/https", forward: "8080/http" },
                 ],
-            },
+            }
         });
         const vg = new sst.aws.Service("VimGuys", {
             // TODO set these to make it so i can run ~1000 games

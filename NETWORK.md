@@ -25,7 +25,7 @@ High level look at the protocol is the following:
 ### version
 This represents two different types of versioning.
 
-* binary protocal version.  This should rarely, if ever change.
+* binary protocol version.  This should rarely, if ever change.
 * new `types`  This will be incremented and will be considered breaking every time.
 
 **Update required** if out of sync

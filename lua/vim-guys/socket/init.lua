@@ -2,6 +2,11 @@ local bit = require("bit")
 local uv = vim.loop
 __Prevent_reconnect = true
 
+--- @alias StatusChange "connected" | "disconnected"
+--- @alias StatusChangeCB fun(s: StatusChange)
+--- @alias ServerStatusChangeCB fun()
+--- @alias ServerMsgCB fun(frame: string)
+
 local PING = 0x9
 local PONG = 0xA
 local TEXT = 0x1
@@ -420,7 +425,7 @@ function WS:on_status_change(cb)
     cb(self.status)
 end
 
---- @param cb ServerActionCB
+--- @param cb ServerMsgCB
 function WS:on_action(cb)
     table.insert(self._on_messages, cb)
 end
@@ -436,6 +441,7 @@ end
 
 return {
     connect = connect,
+    WSFrame = WSFrame,
 }
 
 
