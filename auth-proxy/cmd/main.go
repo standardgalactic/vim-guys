@@ -22,8 +22,8 @@ import (
 
 // UserMapping represents the structure of the user_mapping table
 type UserMapping struct {
-    UserID     string `db:"userId"`
-    UUID string `db:"uuid"`
+    UserID     string `db:"USERID"`
+    UUID string `db:"UUID"`
 }
 
 func (u *UserMapping) String() string {
@@ -252,6 +252,7 @@ func (w *WS) authenticate(outer context.Context, db *sqlx.DB) error {
 			return fmt.Errorf("expected authentication packet but received: %d", msg.Type)
 		}
 		token := string(msg.Data)
+		slog.Info("token received", "token", token)
 		query := "SELECT userId, uuid FROM user_mapping WHERE uuid = ?"
 		var mapping UserMapping
 		err := db.Get(&mapping, query, token)
