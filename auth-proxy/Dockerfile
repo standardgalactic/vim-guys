@@ -6,13 +6,13 @@ COPY . .
 
 # Build the Go app
 RUN go mod download
-RUN go build ./cmd/main.go -o main
+RUN go build -o main ./cmd/main.go
 
 # Create a minimal image for deployment
 FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /app/main .
-EXPOSE 8080
+EXPOSE 42000
 
 CMD ["./main"]
 

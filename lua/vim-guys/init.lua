@@ -12,11 +12,11 @@ if Client ~= nil then
     pcall(Client.close, Client)
 end
 
-Client = ws.connect("localhost", 42000)
+Client = ws.connect("dev.vimguys.theprimeagen.com", 80)
 Client:on_status_change(function (s)
     print("status change", s)
     if s == "connected" then
-        local auth = frame.authentication("14141e4e-0b30-4610-8f77-5795a599c619")
+        local auth = frame.authentication("07669e6d-2857-486a-8208-ce64172875f7")
         print("sending message", test_utils.to_hex_string(auth))
         Client:msg(auth)
     end

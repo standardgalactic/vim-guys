@@ -42,11 +42,13 @@ export default $config({
                     }),
                 },
                 rules: [
-                    { listen: "80/http", forward: "8080/http" },
-                    { listen: "443/https", forward: "8080/http" },
+                    { listen: "80/http", forward: "42000/http" },
+                    { listen: "443/https", forward: "42000/http" },
                 ],
             }
         });
+
+        /*
         const vg = new sst.aws.Service("VimGuys", {
             // TODO set these to make it so i can run ~1000 games
             image: {
@@ -55,6 +57,7 @@ export default $config({
             wait: true,
             cluster,
         });
+        */
     },
 });
 
