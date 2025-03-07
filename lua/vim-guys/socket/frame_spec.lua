@@ -1,6 +1,5 @@
 local eq = assert.are.same
 local frame = require("vim-guys.socket.frame")
-local test_utils = require("vim-guys.test_utils")
 
 describe("frame", function()
     it("testing the big endian translations!", function()

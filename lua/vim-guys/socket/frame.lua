@@ -109,7 +109,9 @@ end
 
 --- @param token string
 local function authentication(token)
-    return ws.WSFrame.text_frame(ProtocolFrame:new(Type.Authentication, token):to_frame())
+    local frame = ProtocolFrame:new(Type.Authentication, token):to_frame()
+    print("frame produced", #frame)
+    return frame
 end
 
 return {

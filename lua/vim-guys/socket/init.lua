@@ -10,6 +10,7 @@ __Prevent_reconnect = true
 local PING = 0x9
 local PONG = 0xA
 local TEXT = 0x1
+local BINARY = 0x2
 local mask = {0x45, 0x45, 0x45, 0x45}
 
 ---@param ping WSFrame
@@ -113,7 +114,7 @@ end
 function WSFrame.text_frame(txt)
     local payload_length = #txt
 
-    local first_byte = bit.band(TEXT, 0x0F)
+    local first_byte = bit.band(BINARY, 0x0F)
     first_byte = bit.bor(first_byte, 0x80)
 
     local out_string = string.char(first_byte)
@@ -300,7 +301,7 @@ function WS:_emit(msg)
     if msg.opcode == PING then
         local out = create_pong_frame(msg)
         self._client:write(out)
-    elseif msg.opcode == TEXT then
+    elseif msg.opcode == BINARY then
         local mask = msg:mask()
         if #mask > 0 then
             error("i haven't implemented mask... wtf server")
