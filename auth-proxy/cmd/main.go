@@ -298,6 +298,8 @@ func main() {
 	dbURL := os.Getenv("TURSO_DATABASE_URL")
     dbToken := os.Getenv("TURSO_AUTH_TOKEN")
 
+	slog.Info("DB", "url", dbURL)
+
 	// ASSERT LIBRARY YOU DUMMY
 	connStr := fmt.Sprintf("libsql://%s?authToken=%s", dbURL, dbToken)
 	db, err := sqlx.Connect("libsql", connStr)

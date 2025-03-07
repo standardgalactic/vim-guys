@@ -12,7 +12,7 @@ if Client ~= nil then
     pcall(Client.close, Client)
 end
 
-Client = ws.connect("localhost", 42000)
+Client = ws.connect("dev.vimguys.theprimeagen.com", 80)
 Client:on_status_change(function (s)
     print("status change", s)
     if s == "connected" then
