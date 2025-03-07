@@ -25,6 +25,10 @@ export default $config({
 
         const ap = new sst.aws.Service("AuthProxy", {
             // TODO look at usage logs
+            environment: {
+                TURSO_DATABASE_URL: new sst.Secret("TURSO_DATABASE_URL").value,
+                TURSO_AUTH_TOKEN: new sst.Secret("TURSO_AUTH_TOKEN").value,
+            },
             scaling: {
                 min: 1,
                 max: 16,
