@@ -1,13 +1,20 @@
 package proxy
 
+import (
+	"log/slog"
+	"sync"
+
+	"vim-guys.theprimeagen.tv/pkg/protocol"
+)
+
 type Interceptor interface {
 	Id() int
 }
 
 type IRelay interface {
 	AddInterceptor(i Interceptor)
-	PushToGame(frame *ProtocolFrame) error
-	PushToClient(frame *ProtocolFrame) error
+	PushToGame(frame *protocol.ProtocolFrame) error
+	PushToClient(frame *protocol.ProtocolFrame) error
 }
 
 type Relay struct {
@@ -22,12 +29,12 @@ func (r *Relay) NewRelay() *Relay {
 	}
 }
 
-func (r *Relay) PushToGame(frame *ProtocolFrame) error {
+func (r *Relay) PushToGame(frame *protocol.ProtocolFrame) error {
 	slog.Info("to game", "frame", frame)
 	return nil
 }
 
-func (r *Relay) PushToClient(frame *ProtocolFrame) error {
+func (r *Relay) PushToClient(frame *protocol.ProtocolFrame) error {
 	slog.Info("to client", "frame", frame)
 	return nil
 }

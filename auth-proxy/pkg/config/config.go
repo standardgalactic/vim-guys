@@ -162,6 +162,7 @@ func (p *ProxyContext) addDB(config *ProxyConfigParams) *ProxyContext {
 		p.Logger.Error("Failed to ping database", "error", err)
 		db.Close()
 	}
+
 	p.Logger.Warn("Successfully connected to Turso database!")
 	p.DB = db
 	return p

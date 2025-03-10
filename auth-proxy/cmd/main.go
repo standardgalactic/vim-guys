@@ -67,7 +67,6 @@ func main() {
     }
     slog.Warn("Successfully connected to Turso database!")
 
-	playerId.Store(0)
 	e := echo.New()
 	e.GET("/socket", addWS(db))
 

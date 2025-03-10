@@ -2,7 +2,6 @@ package ws
 
 import (
 	"context"
-	"encoding/binary"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -13,11 +12,13 @@ import (
 	"github.com/jmoiron/sqlx"
 	"vim-guys.theprimeagen.tv/pkg/config"
 	"vim-guys.theprimeagen.tv/pkg/data"
+	"vim-guys.theprimeagen.tv/pkg/protocol"
 )
 
 
 type WSFactory struct {
 	websocketId atomic.Int64
+	context *config.ProxyContext
 }
 
 type WS struct {
@@ -25,12 +26,13 @@ type WS struct {
 	closed bool
 	websocketId int
 	mutex  sync.Mutex
-
+	context *config.ProxyContext
 }
 
-func NewWSProducer() *WSFactory {
+func NewWSProducer(c *config.ProxyContext) *WSFactory {
 	return &WSFactory{
 		websocketId: atomic.Int64{},
+		context: c,
 	}
 }
 
@@ -40,6 +42,7 @@ func (p *WSFactory) NewWS(conn *websocket.Conn) *WS {
 		closed: false,
 		websocketId: int(p.websocketId.Add(1)),
 		mutex:  sync.Mutex{},
+		context: p.context,
 	}
 }
 
@@ -47,13 +50,13 @@ func (w *WS) Id() int {
 	return w.websocketId
 }
 
-func (w *WS) ToClient(frame *ProtocolFrame) error {
+func (w *WS) ToClient(frame *protocol.ProtocolFrame) error {
 	// TODO lets see if i can keep this
 	// I may have to do some magic and probably rename "Original" into frame data
 	return w.conn.WriteMessage(websocket.BinaryMessage, frame.Frame())
 }
 
-func (w *WS) next() (*ProtocolFrame, error) {
+func (w *WS) next() (*protocol.ProtocolFrame, error) {
 	for {
 		t, data, err := w.conn.ReadMessage()
 		slog.Info("msg received", "type", t, "data length", len(data), "err", err)
@@ -65,7 +68,7 @@ func (w *WS) next() (*ProtocolFrame, error) {
 			continue
 		}
 
-		frame, err := FromData(data, w.websocketId)
+		frame, err := protocol.FromData(data, w.websocketId)
 		slog.Info("msg parsed", "frame", frame, "error", err)
 		return frame, err
 	}
@@ -79,8 +82,8 @@ func (w *WS) Close() {
 }
 
 func (w *WS) authenticate(outer context.Context, db *sqlx.DB) error {
-	ctx, cancel := context.WithTimeout(outer, config.Config.AuthenticationTimeout)
-	next := make(chan *ProtocolFrame, 1)
+	ctx, cancel := context.WithTimeout(outer, w.context.WS.AuthenticationTimeout)
+	next := make(chan *protocol.ProtocolFrame, 1)
 	go func() {
 		data, err := w.next()
 		if err == nil {
@@ -94,7 +97,7 @@ func (w *WS) authenticate(outer context.Context, db *sqlx.DB) error {
 		return errors.New("socket didn't respond in time")
 	case msg := <-next:
 		cancel()
-		if msg.Type != Authenticate {
+		if msg.Type != protocol.Authenticate {
 			return fmt.Errorf("expected authentication packet but received: %d", msg.Type)
 		}
 		token := string(msg.Data)
