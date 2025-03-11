@@ -28,7 +28,7 @@ func (p *ProxyServer) Id() int {
 	return config.PROXY_SERVER_ID
 }
 
-func (prox *ProxyServer) Start(p proxy.IProxy) {
+func (prox *ProxyServer) Start(p proxy.IProxy) error {
 	factory :=  ws.NewWSProducer(p.Context())
 	e := echo.New()
 	e.GET("/socket", func(c echo.Context) error {

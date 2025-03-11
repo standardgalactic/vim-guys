@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"slices"
 	"sync"
+	"time"
 
 	"vim-guys.theprimeagen.tv/pkg/config"
 	"vim-guys.theprimeagen.tv/pkg/protocol"
@@ -32,7 +33,7 @@ type Proxy struct {
 	context *config.ProxyContext
 }
 
-func (r *Proxy) NewProxy(ctx *config.ProxyContext) *Proxy {
+func NewProxy(ctx *config.ProxyContext) *Proxy {
 	return &Proxy{
 		mutex: sync.Mutex{},
 		interceptors: []Interceptor{},
@@ -81,6 +82,9 @@ func (r *Proxy) AddInterceptor(i Interceptor) {
 
 
 func (r *Proxy) Start() error {
+	for {
+		time.Sleep(time.Second)
+	}
 	// TODO I should be reading from messages from game and messages from clients
 	return nil
 }
