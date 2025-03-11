@@ -33,12 +33,15 @@ type WS struct {
 }
 
 func NewWSProducer(c *config.ProxyContext) *WSFactory {
-	return &WSFactory{
+	factory := &WSFactory{
 		websocketId: atomic.Int64{},
 		context: c,
 		logger: slog.Default().With("area", "ws-factory"),
 	}
+	factory.websocketId.Store(1000)
+	return factory
 }
+
 
 func (p *WSFactory) NewWS(conn *websocket.Conn) *WS {
 	id := int(p.websocketId.Add(1))
@@ -66,8 +69,10 @@ func (w *WS) Start(p proxy.IProxy) error {
 	}
 	w.proxy = p
 	err := w.authenticate()
-	if err != nil {
-		w.logger.Debug("unable to authenticate websocket client", "id", w.Id())
+	err2 := w.ToClient(protocol.Auth(err == nil, w.websocketId))
+	if err != nil || err2 != nil {
+		w.logger.Debug("unable to authenticate websocket client", "id", w.Id(), "send error", err)
+		w.Close()
 	}
 
 	// listen for messages and pass them to the game

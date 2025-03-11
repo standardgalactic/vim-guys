@@ -12,6 +12,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+const PROXY_SERVER_ID = 1
+
 type ProxyConfigParams struct {
 	DBUrl   string
 	DBToken string

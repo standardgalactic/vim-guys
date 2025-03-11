@@ -32,6 +32,14 @@ type ProtocolFrame struct {
 	Original []byte
 }
 
+func Auth(auth bool, playerId int) *ProtocolFrame {
+	b := byte(0)
+	if auth {
+		b = 1
+	}
+	return NewProtocolFrame(Authenticate, []byte{b}, playerId)
+}
+
 func NewProtocolFrame(t ProtocolType, data []byte, playerId int) *ProtocolFrame {
 	return &ProtocolFrame{
 		Type: t,

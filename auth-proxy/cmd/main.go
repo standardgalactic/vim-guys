@@ -21,11 +21,4 @@ func main() {
 	godotenv.Load()
 
 	ctx := config.NewAuthConfig(config.ProxyConfigParamsFromEnv())
-	e := echo.New()
-	e.GET("/socket", addWS(ctx))
-
-	url := fmt.Sprintf("0.0.0.0:%d", config.Config.Port)
-	if err := e.Start(url); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		slog.Error("echo server crashed", "error", err)
-	}
 }
