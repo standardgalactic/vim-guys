@@ -9,16 +9,17 @@ import (
 	"sync/atomic"
 
 	"github.com/gorilla/websocket"
-	"github.com/jmoiron/sqlx"
 	"vim-guys.theprimeagen.tv/pkg/config"
 	"vim-guys.theprimeagen.tv/pkg/data"
 	"vim-guys.theprimeagen.tv/pkg/protocol"
+	"vim-guys.theprimeagen.tv/pkg/proxy"
 )
 
 
 type WSFactory struct {
 	websocketId atomic.Int64
 	context *config.ProxyContext
+	logger *slog.Logger
 }
 
 type WS struct {
@@ -27,27 +28,63 @@ type WS struct {
 	websocketId int
 	mutex  sync.Mutex
 	context *config.ProxyContext
+	proxy proxy.IProxy
+	logger *slog.Logger
 }
 
 func NewWSProducer(c *config.ProxyContext) *WSFactory {
 	return &WSFactory{
 		websocketId: atomic.Int64{},
 		context: c,
+		logger: slog.Default().With("area", "ws-factory"),
 	}
 }
 
 func (p *WSFactory) NewWS(conn *websocket.Conn) *WS {
+	id := int(p.websocketId.Add(1))
 	return &WS{
 		conn:   conn,
 		closed: false,
-		websocketId: int(p.websocketId.Add(1)),
+		websocketId: id,
 		mutex:  sync.Mutex{},
 		context: p.context,
+		logger: slog.Default().With("area", fmt.Sprintf("ws-%d", id)),
 	}
 }
 
 func (w *WS) Id() int {
 	return w.websocketId
+}
+
+func (w *WS) Name() string {
+	return "websocket"
+}
+
+func (w *WS) Start(p proxy.IProxy) error {
+	if !w.context.HasDatabase() {
+		return fmt.Errorf("unable to create a websocket connection without a database.  unable to perform authentication.")
+	}
+	w.proxy = p
+	err := w.authenticate()
+	if err != nil {
+		w.logger.Debug("unable to authenticate websocket client", "id", w.Id())
+	}
+
+	// listen for messages and pass them to the game
+	for {
+		frame, err := w.next()
+		if err != nil {
+			slog.Debug("websocket errored", "error", err)
+			w.Close()
+			break
+		}
+		slog.Debug("received frame", "frame", frame, "id", w.Id())
+
+		// TODO filter for things the proxy can understand (stat requests, game quitting, etc etc)
+		// TODO pass the rest that make sense to the game
+		p.PushToGame(frame, w)
+	}
+	return nil
 }
 
 func (w *WS) ToClient(frame *protocol.ProtocolFrame) error {
@@ -59,7 +96,7 @@ func (w *WS) ToClient(frame *protocol.ProtocolFrame) error {
 func (w *WS) next() (*protocol.ProtocolFrame, error) {
 	for {
 		t, data, err := w.conn.ReadMessage()
-		slog.Info("msg received", "type", t, "data length", len(data), "err", err)
+		w.logger.Info("msg received", "type", t, "data length", len(data), "err", err)
 		if err != nil {
 			return nil, err
 		}
@@ -69,20 +106,25 @@ func (w *WS) next() (*protocol.ProtocolFrame, error) {
 		}
 
 		frame, err := protocol.FromData(data, w.websocketId)
-		slog.Info("msg parsed", "frame", frame, "error", err)
+		w.logger.Info("msg parsed", "frame", frame, "error", err)
 		return frame, err
 	}
 }
 
-func (w *WS) Close() {
+func (w *WS) Close() error {
+	if w.proxy != nil {
+		w.proxy.RemoveInterceptor(w)
+	}
+
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	w.closed = true
 	w.conn.Close()
+	return nil
 }
 
-func (w *WS) authenticate(outer context.Context, db *sqlx.DB) error {
-	ctx, cancel := context.WithTimeout(outer, w.context.WS.AuthenticationTimeout)
+func (w *WS) authenticate() error {
+	ctx, cancel := context.WithTimeout(context.Background(), w.context.WS.AuthenticationTimeout)
 	next := make(chan *protocol.ProtocolFrame, 1)
 	go func() {
 		data, err := w.next()
@@ -104,10 +146,10 @@ func (w *WS) authenticate(outer context.Context, db *sqlx.DB) error {
 
 		query := "SELECT userId, uuid FROM user_mapping WHERE uuid = ?"
 		var mapping data.UserMapping
-		err := db.Get(&mapping, query, token)
+		err := w.context.DB.Get(&mapping, query, token)
 
 		if err != nil {
-			slog.Error("Failed to select user_mapping", "error", err)
+			w.logger.Error("Failed to select user_mapping", "error", err)
 			return err
 		}
 

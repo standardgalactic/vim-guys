@@ -150,6 +150,10 @@ type ProxyContext struct {
 	Logger *slog.Logger
 }
 
+func (p *ProxyContext) HasDatabase() bool {
+	return p.DB != nil
+}
+
 func (p *ProxyContext) addDB(config *ProxyConfigParams) *ProxyContext {
 	connStr := fmt.Sprintf("libsql://%s?authToken=%s", config.DBUrl, config.DBToken)
 	db, err := sqlx.Connect("libsql", connStr)
