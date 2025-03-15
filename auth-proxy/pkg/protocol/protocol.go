@@ -40,6 +40,15 @@ func Auth(auth bool, playerId int) *ProtocolFrame {
 	return NewProtocolFrame(Authenticate, []byte{b}, playerId)
 }
 
+func NewClientProtocolFrame(t ProtocolType, data []byte) *ProtocolFrame {
+	return &ProtocolFrame{
+		Type: t,
+		Len: len(data),
+		Data: data,
+		PlayerId: 0,
+	}
+}
+
 func NewProtocolFrame(t ProtocolType, data []byte, playerId int) *ProtocolFrame {
 	return &ProtocolFrame{
 		Type: t,

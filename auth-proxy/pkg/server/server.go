@@ -31,6 +31,11 @@ func (p *ProxyServer) Id() int {
 func (prox *ProxyServer) Start(p proxy.IProxy) error {
 	factory :=  ws.NewWSProducer(p.Context())
 	e := echo.New()
+
+	e.GET("/health", func(c echo.Context) error {
+		return nil
+	})
+
 	e.GET("/socket", func(c echo.Context) error {
 		// Upgrade the HTTP connection to a WebSocket connection
 		conn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)

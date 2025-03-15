@@ -9,6 +9,7 @@ import (
 	"sync/atomic"
 
 	"github.com/gorilla/websocket"
+	"vim-guys.theprimeagen.tv/auth-proxy/pkg/data"
 	"vim-guys.theprimeagen.tv/pkg/config"
 	"vim-guys.theprimeagen.tv/pkg/data"
 	"vim-guys.theprimeagen.tv/pkg/protocol"
@@ -147,18 +148,12 @@ func (w *WS) authenticate() error {
 		if msg.Type != protocol.Authenticate {
 			return fmt.Errorf("expected authentication packet but received: %d", msg.Type)
 		}
+
 		token := string(msg.Data)
-
-		query := "SELECT userId, uuid FROM user_mapping WHERE uuid = ?"
-		var mapping data.UserMapping
-		err := w.context.DB.Get(&mapping, query, token)
-
-		if err != nil {
-			w.logger.Error("Failed to select user_mapping", "error", err)
-			return err
+		if !data.AccountExists(w.context, token) {
+			return fmt.Errorf("Failed to select user_mapping")
 		}
-
-
 	}
+
 	return nil
 }
