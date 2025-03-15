@@ -8,9 +8,9 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
-	"vim-guys.theprimeagen.tv/pkg/config"
-	"vim-guys.theprimeagen.tv/pkg/proxy"
-	"vim-guys.theprimeagen.tv/pkg/ws"
+	"vim-guys.theprimeagen.tv/auth-proxy/pkg/config"
+	"vim-guys.theprimeagen.tv/auth-proxy/pkg/proxy"
+	"vim-guys.theprimeagen.tv/auth-proxy/pkg/ws"
 )
 
 // Upgrader configures the WebSocket connection

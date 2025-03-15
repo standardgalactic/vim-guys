@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/joho/godotenv"
-	"vim-guys.theprimeagen.tv/pkg/config"
-	"vim-guys.theprimeagen.tv/pkg/proxy"
-	"vim-guys.theprimeagen.tv/pkg/server"
+	"vim-guys.theprimeagen.tv/auth-proxy/pkg/config"
+	"vim-guys.theprimeagen.tv/auth-proxy/pkg/proxy"
+	"vim-guys.theprimeagen.tv/auth-proxy/pkg/server"
 )
 
 func main() {

@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"vim-guys.theprimeagen.tv/pkg/config"
-	"vim-guys.theprimeagen.tv/pkg/protocol"
+	"vim-guys.theprimeagen.tv/auth-proxy/pkg/config"
+	"vim-guys.theprimeagen.tv/auth-proxy/pkg/protocol"
 )
 
 type Interceptor interface {

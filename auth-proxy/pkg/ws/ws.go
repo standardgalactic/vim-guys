@@ -10,10 +10,9 @@ import (
 
 	"github.com/gorilla/websocket"
 	"vim-guys.theprimeagen.tv/auth-proxy/pkg/data"
-	"vim-guys.theprimeagen.tv/pkg/config"
-	"vim-guys.theprimeagen.tv/pkg/data"
-	"vim-guys.theprimeagen.tv/pkg/protocol"
-	"vim-guys.theprimeagen.tv/pkg/proxy"
+	"vim-guys.theprimeagen.tv/auth-proxy/pkg/config"
+	"vim-guys.theprimeagen.tv/auth-proxy/pkg/protocol"
+	"vim-guys.theprimeagen.tv/auth-proxy/pkg/proxy"
 )
 
 
